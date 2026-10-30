@@ -23,10 +23,13 @@ ECFR_USER_AGENT = "1065-local-chatbot/1.0 (local research aid; public eCFR)"
 
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "").strip()
+OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "30m").strip()
 PREFERRED_MODELS = ("llama3.1:8b", "llama3.2:3b", "llama3.1", "llama3.2", "llama3")
+NUM_CTX = 8192
 
-VECTOR_RESULTS = 8
-MAX_CONTEXT_CHUNKS = 10
+VECTOR_RESULTS = 6
+MAX_CONTEXT_CHUNKS = 6
 MAX_CHUNK_CHARS = 1800
 CHUNK_OVERLAP = 200
-HISTORY_TURNS = 6
+HISTORY_TURNS = 4
+HISTORY_MAX_CHARS = 1200

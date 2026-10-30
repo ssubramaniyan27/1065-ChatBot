@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 from collections.abc import AsyncIterator
@@ -8,15 +9,18 @@ from typing import Any
 import httpx
 
 from app.config import (
+    HISTORY_MAX_CHARS,
     HISTORY_TURNS,
     MAX_CONTEXT_CHUNKS,
+    NUM_CTX,
     OLLAMA_HOST,
+    OLLAMA_KEEP_ALIVE,
     OLLAMA_MODEL,
     PREFERRED_MODELS,
     VECTOR_RESULTS,
 )
 from app.ingest import load_meta, load_section_index
-from app.store import collection_count, get_by_sections, query_vectors
+from app.store import collection_count, get_by_sections, preload, query_vectors
 
 SECTION_RE = re.compile(
     r"(?:§\s*)?(?:40\s*C\.?\s*F\.?\s*R\.?\s*)?(1065\.\d+[a-z]?)",
@@ -178,13 +182,30 @@ async def status_payload() -> dict[str, Any]:
     }
 
 
+async def warm_up() -> None:
+    try:
+        await asyncio.to_thread(preload)
+    except OSError:
+        pass
+    model = pick_model(await ollama_tags())
+    if not model:
+        return
+    # num_ctx must match the chat requests, or Ollama reloads the model on the first question.
+    payload = {"model": model, "keep_alive": OLLAMA_KEEP_ALIVE, "options": {"num_ctx": NUM_CTX}}
+    try:
+        async with httpx.AsyncClient(timeout=None) as client:
+            await client.post(f"{OLLAMA_HOST}/api/generate", json=payload)
+    except httpx.HTTPError:
+        pass
+
+
 def history_messages(history: list[dict[str, str]]) -> list[dict[str, str]]:
     cleaned: list[dict[str, str]] = []
     for item in history[-HISTORY_TURNS:]:
         role = item.get("role")
         content = (item.get("content") or "").strip()
         if role in {"user", "assistant"} and content:
-            cleaned.append({"role": role, "content": content[:2000]})
+            cleaned.append({"role": role, "content": content[:HISTORY_MAX_CHARS]})
     return cleaned
 
 
@@ -234,7 +255,8 @@ async def stream_answer(question: str, history: list[dict[str, str]] | None = No
         "model": status["ollama"]["model"],
         "messages": messages,
         "stream": True,
-        "options": {"temperature": 0.1, "num_ctx": 8192},
+        "keep_alive": OLLAMA_KEEP_ALIVE,
+        "options": {"temperature": 0.1, "num_ctx": NUM_CTX},
     }
 
     try:
