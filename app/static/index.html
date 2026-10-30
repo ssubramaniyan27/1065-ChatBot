@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>40 CFR Part 1065 Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div>
+          <p class="kicker">Local research aid</p>
+          <h1>40 CFR Part 1065</h1>
+          <p class="subtitle">Engine-testing procedures</p>
+        </div>
+        <dl class="status" id="status">
+          <div>
+            <dt>Index</dt>
+            <dd id="status-index">Checking…</dd>
+          </div>
+          <div>
+            <dt>eCFR date</dt>
+            <dd id="status-date">—</dd>
+          </div>
+          <div>
+            <dt>Model</dt>
+            <dd id="status-model">—</dd>
+          </div>
+        </dl>
+      </header>
+
+      <p class="disclaimer">
+        Answers are generated on this PC from a local copy of Part 1065. This is not legal advice.
+        eCFR is authoritative but unofficial; the published CFR on govinfo is the official edition.
+        Keep proprietary test details in private mode.
+      </p>
+
+      <div id="banner" class="banner hidden" role="status"></div>
+
+      <main id="transcript" class="transcript" aria-live="polite">
+        <section class="bubble assistant">
+          <p>
+            Ask about 40 CFR Part 1065. I search the indexed regulation on this computer and cite the
+            sections I used.
+          </p>
+          <ul class="suggestions">
+            <li><button type="button" data-suggest="What is 40 CFR Part 1065 and what does it cover?">What does Part 1065 cover?</button></li>
+            <li><button type="button" data-suggest="What does 40 CFR 1065.170 require?">What does 1065.170 require?</button></li>
+            <li><button type="button" data-suggest="How does Part 1065 define a valid test?">What is a valid test?</button></li>
+          </ul>
+        </section>
+      </main>
+
+      <form id="composer" class="composer">
+        <label class="sr-only" for="question">Question</label>
+        <textarea
+          id="question"
+          name="question"
+          rows="2"
+          required
+          placeholder="Ask a Part 1065 question, for example: What does 1065.10 require?"
+        ></textarea>
+        <button type="submit" id="send">Ask</button>
+      </form>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

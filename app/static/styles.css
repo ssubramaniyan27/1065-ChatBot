@@ -1,0 +1,273 @@
+:root {
+  --bg: #12151c;
+  --panel: #1b2130;
+  --panel-2: #232b3d;
+  --ink: #e8edf7;
+  --muted: #9aa7bd;
+  --line: #33405a;
+  --accent: #e0b15a;
+  --accent-ink: #1a1408;
+  --user: #2a3f63;
+  --danger: #f0b4b4;
+  --ok: #8fd0a8;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #2a3348 0%, transparent 55%),
+    var(--bg);
+  color: var(--ink);
+  font: 16px/1.45 "Segoe UI", system-ui, sans-serif;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.kicker {
+  margin: 0 0 4px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.status {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(7rem, 1fr));
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+
+.status dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status dd {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+.disclaimer,
+.banner {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.disclaimer {
+  color: var(--muted);
+  background: rgba(224, 177, 90, 0.08);
+  font-size: 0.92rem;
+}
+
+.banner {
+  background: #3a2430;
+  color: var(--danger);
+}
+
+.banner.ok {
+  background: #1d3328;
+  color: var(--ok);
+}
+
+.hidden {
+  display: none;
+}
+
+.transcript {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 4px;
+}
+
+.bubble {
+  max-width: 92%;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.bubble p {
+  margin: 0 0 10px;
+}
+
+.bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.bubble.user {
+  align-self: flex-end;
+  background: var(--user);
+}
+
+.bubble.assistant {
+  align-self: flex-start;
+}
+
+.bubble.error {
+  border-color: #7a3d3d;
+  color: var(--danger);
+}
+
+.suggestions {
+  list-style: none;
+  padding: 10px 0 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestions button,
+.cite {
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.sources {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cite-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cite {
+  text-decoration: none;
+}
+
+.cite:hover,
+.suggestions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.excerpt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 58px;
+  max-height: 180px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 12px 14px;
+  font: inherit;
+}
+
+button#send {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font: 650 1rem/1 "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+  min-height: 58px;
+}
+
+button#send:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.pending::after {
+  content: " …";
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .top,
+  .composer,
+  .status {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bubble {
+    max-width: 100%;
+  }
+}
