@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -17,7 +18,10 @@ CHUNKS_PATH = INDEX_DIR / "chunks.json"
 
 @lru_cache(maxsize=1)
 def embedding_model() -> SentenceTransformer:
-    return SentenceTransformer(EMBEDDING_MODEL)
+    try:
+        return SentenceTransformer(EMBEDDING_MODEL, local_files_only=True)
+    except OSError:
+        return SentenceTransformer(EMBEDDING_MODEL)
 
 
 def embed_texts(texts: list[str], show_progress: bool = False) -> np.ndarray:
@@ -51,16 +55,33 @@ def save_index(ids: list[str], documents: list[str], metadatas: list[dict[str, A
     embedding_model.cache_clear()
 
 
+def _mtime_ns(path: Path) -> int:
+    try:
+        return path.stat().st_mtime_ns
+    except FileNotFoundError:
+        return 0
+
+
+@lru_cache(maxsize=1)
+def _cached_index(chunks_mtime: int, embeddings_mtime: int) -> tuple[list[dict[str, Any]], np.ndarray]:
+    if not chunks_mtime or not embeddings_mtime:
+        return [], np.zeros((0, 384), dtype=np.float32)
+    chunks = json.loads(CHUNKS_PATH.read_text(encoding="utf-8"))
+    embeddings = np.load(EMBEDDINGS_PATH).astype(np.float32)
+    return chunks, embeddings
+
+
+def _index() -> tuple[list[dict[str, Any]], np.ndarray]:
+    return _cached_index(_mtime_ns(CHUNKS_PATH), _mtime_ns(EMBEDDINGS_PATH))
+
+
 def _load_chunks() -> list[dict[str, Any]]:
-    if not CHUNKS_PATH.exists() or not EMBEDDINGS_PATH.exists():
-        return []
-    return json.loads(CHUNKS_PATH.read_text(encoding="utf-8"))
+    return _index()[0]
 
 
-def _load_embeddings() -> np.ndarray:
-    if not EMBEDDINGS_PATH.exists():
-        return np.zeros((0, 384), dtype=np.float32)
-    return np.load(EMBEDDINGS_PATH).astype(np.float32)
+def preload() -> None:
+    _index()
+    embed_texts(["warm up"])
 
 
 def collection_count() -> int:
@@ -68,8 +89,7 @@ def collection_count() -> int:
 
 
 def query_vectors(question: str, n_results: int) -> list[dict[str, Any]]:
-    chunks = _load_chunks()
-    embeddings = _load_embeddings()
+    chunks, embeddings = _index()
     if not chunks or embeddings.size == 0:
         return []
     query = embed_texts([question])[0]

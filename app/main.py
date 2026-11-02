@@ -1,17 +1,30 @@
 from __future__ import annotations
 
+import asyncio
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from app.config import STATIC_DIR
-from app.rag import status_payload, stream_answer
+from app.rag import status_payload, stream_answer, warm_up
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    task = asyncio.create_task(warm_up())
+    yield
+    task.cancel()
+
 
 app = FastAPI(
     title="1065 Local Chatbot",
     description="Local research assistant for 40 CFR Part 1065. Answers stay on this computer.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
